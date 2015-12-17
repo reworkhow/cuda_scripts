@@ -1,5 +1,0 @@
-MAP
-t(X1).RinvBW_BW.X1 t(X1).RinvBW_WTG.X2 t(X1).RinvBW_BW.Z1 t(X1).RinvBW_WTG.Z2
-t(X2).RinvBW_WTG.X1 t(X2).RinvWTG_WTG.X2 t(X2).RinvBW_WTG.Z1 t(X2).RinvWTG_WTG.Z2
-t(Z1).RinvBW_BW.X1 t(Z1).RinvBW_WTG.X2 t(Z1).RinvBW_BW.Z1.v t(Z1).RinvBW_WTG.Z2.d+Ainv*-1.2538961210E-02
-t(Z2).RinvBW_WTG.X1 t(Z2).RinvWTG_WTG.X2 t(Z2).RinvBW_WTG.Z1.d+Ainv*-1.2538961210E-02 t(Z2).RinvWTG_WTG.Z2.v
