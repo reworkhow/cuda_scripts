@@ -1,0 +1,13 @@
+#!/bin/bash 
+
+TRNAME=BW
+SCRIPT=~/03_Analysis/03_PBLUP/0.scripts
+DATA=~/03_Analysis/03_PBLUP/2.data
+RUN=~/03_Analysis/03_PBLUP/1.results
+FILE=${DATA}/pheno.train
+PED=${DATA}/stacked_ped
+###vare/varg
+VARE=144.75
+VARG=78.22
+lambda=$(echo $VARE/$VARG|bc -l)
+ 

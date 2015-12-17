@@ -1,0 +1,33 @@
+HMMAP
+RHS
+{
+	BW 	CGBW 		beta 			X1Ry
+	PWG 	CGPWG 		beta 			X2Ry
+	BW 	MARKER_BW 	alpha(0.0942334) 	W1Ry
+	PWG 	MARKER_PWG 	alpha(0.162839) 	W2Ry
+	BW 	RESGEN_BW 	epsilon 		Zn1Ry
+	PWG 	RESGEN_PWG 	epsilon 		Zn2Ry
+}
+BLOCKS
+{
+	X1RX1 	X1RX2	X1RZ1		X1RZ2		Xn1RZn1		Xn1RZn2
+	X2RX1 	X2RX2	X2RZ1		X2RZ2		Xn2RZn1		Xn2RZn2
+	Zo1RXo1	Zo1RXo2	W1tW1.phi11	W1tW2.phi12	Zn1RZn1 	Zn1RZn2
+	Zo2RXo1	Zo2RXo2	W1tW2.phi12	W2tW2.phi22	Zn2RZn1 	Zn2RZn2
+	Zn1RXn1	Zn1RXn2	Zn1RZn1		Zn1RZn2		Zn1RZn1.AnnXg11 Zn1RZn2.AnnXg12
+	Zn2RXn1	Zn2RXn2	Zn2RZn1		Zn2RZn2		Zn2RZn1.AnnXg21 Zn2RZn2.AnnXg22
+}
+COMMON
+{
+	Mo=M_2
+	Fnn=F
+	Tnn=T
+	permute=perm.c
+	Ano=v.1_2
+	Aon=v.2_1
+}
+EBVOUT
+{
+	BW.direct = uTilda+ RESGEN_BW + J*CGBW[0]
+	PWG.direct = uTilda+ RESGEN_PWG + J*CGPWG[0]
+}

@@ -1,0 +1,42 @@
+# Do the imputation
+
+. ./00_config
+
+cd ${RUN}
+
+#get the genotypes on all animals in v.2_2
+#awk '{print $1}' s.2 | join ${SNPDATA} - >c.1.0
+
+# Filter out the low minor allele freq loci
+#awk '{print substr($0,length($1)+1)}' c.1.0 >c.1.1
+#genofilter -i c.1.1 -o c.1.2 -f ${FILTER} -C cv
+#mv c.1.1 c.1.2
+#awk '{print $1}' c.1.0 | paste - c.1.2 >c.1
+
+# get the cid file into fixed length records
+awk '{printf "%-19s", $1; for(i=2; i<=NF; i++) printf "% 3d", $i; printf "\n"}' ${SNPDATA} >c.1.fmt
+
+#setup for imputation
+cholesky -A v.1_1 -o F -p perm.c
+
+# This is a way to make a transpose
+ident -m v.1_1 >I
+cmult -t -a F -b I -c T
+
+rm -rf M.t
+
+# These are run in parallel on the HOST cpu cores.
+impute -F F -T T -A v.1_2 -M c.1.fmt -x M.t.1 -p perm.c -n `head -1 c.1.fmt | awk '{print NF-1}'` -C centerValues.1 -s 1 -e 1000 -b -t &
+impute -F F -T T -A v.1_2 -M c.1.fmt -x M.t.2 -p perm.c -n `head -1 c.1.fmt | awk '{print NF-1}'` -C centerValues.2 -s 1001 -e 2000 -b -t &
+impute -F F -T T -A v.1_2 -M c.1.fmt -x M.t.3 -p perm.c -n `head -1 c.1.fmt | awk '{print NF-1}'` -C centerValues.3 -s 2001 -e 3000 -b -t &
+impute -F F -T T -A v.1_2 -M c.1.fmt -x M.t.4 -p perm.c -n `head -1 c.1.fmt | awk '{print NF-1}'` -C centerValues.4 -s 3001 -e 4000 -b -t &
+impute -F F -T T -A v.1_2 -M c.1.fmt -x M.t.5 -p perm.c -n `head -1 c.1.fmt | awk '{print NF-1}'` -C centerValues.5 -s 4001 -b -t &
+
+wait
+
+echo "DONE WITH IMPUTE STARTING CAT"
+cat centerValues.1 centerValues.2 centerValues.3 centerValues.4 centerValues.5 > centerValues
+cat M.t.1 M.t.2 M.t.3 M.t.4 M.t.5 >M.t
+
+NACTLOCI=`head -1 c.1.fmt | awk '{print NF}'`
+echo "Actual number of loci used after filter: " ${NACTLOCI}

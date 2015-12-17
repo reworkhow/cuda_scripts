@@ -1,0 +1,50 @@
+
+. ./00_config
+
+SAMPLES=10
+BURNIN=2
+
+cd ${RUN}
+
+cln
+shmgr load W1tW1.phi11 W2tW2.phi22 W1tW2.phi12
+shmgr loadcmo M_2
+
+# Do the burnin
+SEED=4000 # seed for burn-in
+SEED1=1001
+SEED2=1002
+SEED3=1003
+SEED4=1004
+
+start=`date +%s`
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+
+#RUN A SHORT CHAIN FOR BURNIN
+hmgibbsC -A ${SCRIPT}/mthmMap -o out -s ${SEED} -n ${BURNIN} -p ${PI} -V -d 4 -x restart
+
+#RUN FOUR LONG CHAINS AFTER BURNIN
+export CUDA_VISIBLE_DEVICES=0 && hmgibbsC -A ${SCRIPT}/mthmMap -o out1 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -d 1 -x restart.restart &
+#hmgibbsC -A ${SCRIPT}/mthmMap -o out1 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out1 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out1 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -d 4 -x restart &
+export CUDA_VISIBLE_DEVICES=1 && hmgibbsC -A ${SCRIPT}/mthmMap -o out2 -s ${SEED2} -n ${SAMPLES} -p ${PI} -V -d 1 -x restart.restart &
+#hmgibbsC -A ${SCRIPT}/mthmMap -o out2 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out2 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out2 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -d 4 -x restart &
+export CUDA_VISIBLE_DEVICES=2 && hmgibbsC -A ${SCRIPT}/mthmMap -o out3 -s ${SEED3} -n ${SAMPLES} -p ${PI} -V -d 1 -x restart.restart &
+#hmgibbsC -A ${SCRIPT}/mthmMap -o out3 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out3 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out3 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -d 4 -x restart &
+export CUDA_VISIBLE_DEVICES=3 && hmgibbsC -A ${SCRIPT}/mthmMap -o out4 -s ${SEED4} -n ${SAMPLES} -p ${PI} -V -d 1 -x restart.restart & 
+#hmgibbsC -A ${SCRIPT}/mthmMap -o out4 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out4 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -x restart &
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out4 -s ${SEED1} -n ${SAMPLES} -p ${PI} -V -d 4 -x restart &
+wait
+
+#hmgibbsCfast -A ${SCRIPT}/mthmMap -o out -s ${SEED} -n ${SAMPLES} -p ${PI} -V -d 3 -P testf50
+#hmgibbsC -A ${SCRIPT}/mthmMap -o out -s ${SEED} -n ${SAMPLES} -p ${PI} -V -d 4  
+end=`date +%s`
+runtime=$((end-start))
+echo ${runtime} > ${RUN}/test_mutliple_chain.out
+

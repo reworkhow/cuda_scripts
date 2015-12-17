@@ -1,0 +1,28 @@
+HMMAP
+RHS
+{
+	BW 	CGBW 		beta 			X1Ry1
+	BW 	MARKER_BW 	alpha(.93157)	  	W1Ry1
+	BW 	RESGEN_BW 	epsilon 		Zn1Ry1
+	BW	EXTRAPOLY	random			Z1Ry1
+}
+BLOCKS
+{
+	X1RX1 	X1RZ1		Xn1RZn1		X1RZ1
+	Zo1RXo1	W1tW1.phi11	Zn1RZn1		ZoRZ1
+	Zn1RXn1	Zn1RZn1		Zn1RZn1.AnnXg11	Zn1RZ1
+	Z1RX1	Z1RZ1		Z1RZn1		Z1RZ1.AXg11c
+}
+COMMON
+{
+	Mo=M_2
+	Fnn=F
+	Tnn=T
+	permute=perm.c
+	Ano=v.1_2
+	Aon=v.2_1
+}
+EBVOUT
+{
+        BW.direct = uTilda + RESGEN_BW + EXTRAPOLY + J*CGBW[0]
+}

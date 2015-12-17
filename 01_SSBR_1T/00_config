@@ -1,0 +1,52 @@
+#
+#hybrid model for 2 trait
+#
+# This is 1-MAF.  Remove any loci that has a MAF <1-FILTER
+FILTER=.9
+#
+# For Bayes C
+PI=.95
+
+##variance components(added by Hao)
+VARE=144.75
+#VARE12=157.9
+#VARE21=157.9
+#VARE22=228.4
+#
+VARG=78.22
+#VARG12=85.1
+#VARG21=85.1
+#VARG22=127.2
+
+SUM2PQ=15226.8
+
+#lamda and phi are calculated without residual variance.
+VARA=$(echo $VARG/$SUM2PQ/'('1-$PI')'|bc -l)
+
+LAMBDA2=$(echo 1/'('$VARG')'| bc -l) #for epsilon
+LAMBDA1=$(echo 1/$VARA|bc -l)            #for markers
+
+# If you have multiple devices you can set which to use here or 
+# comment this out to use system default
+export CUDA_VISIBLE_DEVICES=0
+
+# Set this to where you installed this example
+WORK=/home/joonholee/2_Analysis/SSBR_st
+SCRIPT=/home/joonholee/2_Analysis/SSBR_st/bw_70k
+# Shouldn't need to touch these
+RUN=${WORK}/result_bw_70k
+DATA=/home/joonholee/2_Analysis/4.Data70k
+PERF=${DATA}/pheno.train
+PED=${DATA}/stacked_ped
+
+SNPDATA=${DATA}/geno.file
+#SNPDATA=${DATA}/geno.female.trn.rm
+#SNPDATA=${DATA}/geno.female.trn.all.tst.rm
+
+
+##get inverse variance components
+#VCdir=${DATA}/var_bw_lfi
+#Ginv11=`awk 'NR==2{print $1}' ${VCdir}/genvar.inv` 
+#Ginv12=`awk 'NR==2{print $2}' ${VCdir}/genvar.inv` 
+#Ginv21=`awk 'NR==2{print $2}' ${VCdir}/genvar.inv` 
+#Ginv22=`awk 'NR==3{print $2}' ${VCdir}/genvar.inv` 

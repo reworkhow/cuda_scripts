@@ -1,0 +1,152 @@
+#!/bin/bash
+#
+# Copyright 2015 Theta Solutions, LLC
+#
+# Make a set of PHI and var alpha statements
+#
+#	mkphi Go PI K PQ
+Syntax="Syntax: mkphi -g Go -p PI -k K -q PQ [-c c]" 
+Go=""
+PI=""
+K=""
+PQ=""
+C="1"
+
+while getopts ":g:p:k:q:c:" opt; do
+	case $opt in
+		g)
+			Go=$OPTARG
+			;;
+		p)
+			PI=$OPTARG
+			;;
+		k)
+			K=$OPTARG
+			;;
+		q)
+			PQ=$OPTARG
+			;;
+		c)	
+			C=$OPTARG
+			;;
+		\?)
+			echo $Syntax >&2
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" >&2
+			exit 1
+			;;
+	esac
+done
+
+if [ -z "$Go" ]
+then
+	echo $Syntax >&2
+	exit 1
+fi
+if [ -z "$PI" ]
+then
+	echo $Syntax >&2
+	exit 1
+fi
+if [ -z "$K" ]
+then
+	echo $Syntax >&2
+	exit 1
+fi
+if [ -z "$PQ" ]
+then
+	echo $Syntax >&2
+	exit 1
+fi
+
+
+echo "#PHIs for alphas"
+
+ckron -a ${C} -b ${Go} -c ${Go}.tmp
+
+invert -i $Go.tmp -o $Go.inv
+
+NR=`mprint $Go.inv | wc | awk '{print $1}'`
+
+GO=`mprint $Go.inv`
+
+I=0
+for v in ${GO}
+do
+	
+	g[${I}]=$v
+	I=`expr ${I} + 1`
+
+done
+
+n=`expr ${NR} - 1`
+
+
+for i in $(seq 0 ${n})
+do
+	for j in $(seq 0 ${n})
+	do
+		c=`expr $i \* ${NR}`
+		I=`expr $c + $j`
+		PHI=`awk -v K=${K} -v G=${g[$I]} -v PQ=${PQ} -v PI=${PI} 'BEGIN{print ((G)*(K*(1.-PI)*2.*PQ))}'`
+
+		echo "PHI_"$i"_"$j"="${PHI}
+		echo "LAME_"$i"_"$j"="${g[I]}
+	done
+done
+
+echo "#var(alpha)"
+
+V=`mprint ${Go}.tmp`
+
+I=0
+for v in ${V}
+do
+
+        g[${I}]=$v
+        I=`expr ${I} + 1`
+
+done
+
+n=`expr ${NR} - 1`
+
+for i in $(seq 0 ${n})
+do
+         c=`expr $i \* ${NR}`
+         I=`expr $c + $i`
+         VARALPHA=`awk -v K=${K} -v G=${g[$I]} -v PQ=${PQ} -v PI=${PI} 'BEGIN{print (G)/(K*(1-PI)*2*PQ)}'`
+
+                echo "VAR_ALPHA_"$i"="${VARALPHA}
+done
+
+echo "#inv(var(a))"
+
+C1=$(echo "1-${C}" | bc -l)
+
+ckron -a ${C1} -b ${Go} -c ${Go}.tmp
+
+invert -i $Go.tmp -o $Go.inv
+
+V=`mprint ${Go}.inv`
+
+I=0
+for v in ${V}
+do
+
+        g[${I}]=$v
+        I=`expr ${I} + 1`
+
+done
+
+n=`expr ${NR} - 1`
+
+for i in $(seq 0 ${n})
+do
+         c=`expr $i \* ${NR}`
+         I=`expr $c + $i`
+         LAMA=`awk -v G=${g[$I]} 'BEGIN{print (G)}'`
+
+                echo "LAMBDA_A_"$i"="${LAMA}
+done

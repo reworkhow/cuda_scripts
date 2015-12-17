@@ -1,0 +1,48 @@
+# Do the M'M blocks for 2 traits y1 and y2
+
+. ./00_config
+
+cd ${RUN}
+
+# The output from mkphi -g genvar -p .95 -k 7753 -q .25
+#PHI_0_0=5.89373
+#PHI_0_1=-0.423767
+#PHI_1_1=0.298524
+#mkphi -g genvar -p .95 -k 42696 -q 0.183
+
+#BW and LFI with covariance
+#PHI_0_0=46.9748
+#PHI_0_1=-31.4401
+#PHI_1_0=-31.4401
+#PHI_1_1=27.1838
+#VAR_ALPHA_0=0.0942334
+#VAR_ALPHA_1=0.162839
+
+#BW and LFI without covariance
+#PHI_0_0=10.612
+#PHI_0_1=0
+#PHI_1_0=0
+#PHI_1_1=6.14104
+#VAR_ALPHA_0=0.0942334
+#VAR_ALPHA_1=0.162839
+
+
+#BW and WTG
+#PHI_0_0=14.1785
+#PHI_0_1=-10.1816
+#PHI_1_0=-10.1816
+#PHI_1_1=29.0758
+#VAR_ALPHA_0=0.0942231
+#VAR_ALPHA_1=0.0459469
+
+#BW and WTG 70k
+#mkphi -g genvar -p .95 -k 41438 -q 0.184
+PHI_0_0=13.2176
+PHI_0_1=-9.56045
+PHI_1_0=-9.56045
+PHI_1_1=26.3409
+VAR_ALPHA_0=0.102589
+VAR_ALPHA_1=0.0514782
+
+mtmgpu -d 1 -m M.t -o W1tW1.phi11,W1tW2.phi12,W2tW2.phi22 -z Z1RZ1,Z1RZ2,Z2RZ2 -p ${PHI_0_0},${PHI_0_1},${PHI_1_1}
+

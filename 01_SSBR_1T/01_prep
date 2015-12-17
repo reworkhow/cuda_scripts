@@ -1,0 +1,22 @@
+# Make the pedigree file and the inv(nrm) blocks
+
+. ./00_config
+
+cd ${RUN}
+
+stack_ped ${PED} p.2.s
+
+invnrm -v v -i p.2.s -o f
+
+# Permute to with and without markers.  1=imputed 2 = genotyped
+awk '{print $1}' ${SNPDATA} | sort  >cid.id
+awk '{print $1}' ${PED} | sort | join - cid.id >s.2
+
+sort ${PED} > ped.sorted
+
+join -a1 -e "." -o 1.1 2.1 ped.sorted s.2 |  awk '$2=="." {print $1, 1}' >cid.1
+
+awk '{print $1}' p.2.s >id.s
+
+permsub -i id.s -r cid.1 -A v -p perm -d 2
+

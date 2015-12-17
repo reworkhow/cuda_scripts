@@ -1,0 +1,41 @@
+#Make the X and Z incidence matrices including the J and K equations
+
+. ./00_config
+
+cd ${RUN}
+
+# Make the J equation of Fernando, et al., (2014)
+awk -v N=`wc s.2 | awk '{print $1}'` 'BEGIN{print "SPARSE ", N, 1, N; for( i=1; i<=N; i++ ) print i, 1, -1}'  >J_2
+
+cmult -a v.1_2 -b J_2 -r -1 -c A12J2
+
+pcgmgpu -A v.1_1 -b A12J2 -x J_1 -t 1.e-8
+
+cvcat J_1 J_2 J
+
+# Make the incidence matrices
+# cat /work/hao/4.Data70k/pheno.header 
+# _id hwumgs bwt.phen br.phen lfi.phen afi.phen wtg.phen hhp.phen hd.phen afe.phen
+
+awk '{print $1}' ${PERF} >id.dat
+awk '{print $2}' ${PERF} >bcg.dat
+awk '{print $3}' ${PERF} >y1
+
+awk '{print $1}' perm >id.eff
+awk '$1!="."{print $1}' bcg.dat | sort -u >bcg.eff
+
+cgen_z -d id.dat -r y1 -e id.eff -o Z1
+
+cgen_z -d bcg.dat -r y1 -e bcg.eff -o X1noj
+
+cmult -a Z1  -b J -c Z1J
+
+# Rohan's undocumented K equation for E[alpha] != 0
+
+# Step (1)
+# Strip off IDs and convert to an sbr matrix
+awk '{print substr($0, length($1)+1)}' c.1.fmt >snps.2
+conv2sbr -i snps.2 -o M_2 -C centerValues
+
+chcat Z1J X1noj X1 #J at the beginning
+

@@ -1,0 +1,30 @@
+
+
+# This is the test for the hmgibbsC tool
+# Test started Feb 2, 2015
+
+# FILTER the low MAF loci
+FILTER=.9
+
+# For the var(Alpha)
+PQ=.25
+
+# The pi value for gibbs C
+PI=.95
+
+# Set this to where you installed this example
+WORK=/home/bgolden/data/examples/2dir/
+
+# You should not need to change any of these
+DATA=${WORK}/data
+RUN=${WORK}/run
+SCRIPTS=${WORK}/scripts
+PERF=${DATA}/perf
+PED=${DATA}/ped
+
+SNPDATA=${DATA}/snpdata
+
+SEED=1234
+
+export CUDA_VISIBLE_DEVICES=0
+

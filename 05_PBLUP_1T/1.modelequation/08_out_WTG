@@ -1,0 +1,18 @@
+
+
+# Name of trait
+trName=WTG
+idField=1
+fixField=5
+obsField=12
+outTag=_PBLUP_St_ME_70k
+tstData=/work/hao/4.Data70k/tst_phens.csv
+
+# Making Sorted_ID_GEBV file 
+sort ${trName}.ebv > ${trName}.ebv.s
+awk -v c1=${idField} -v c2=${fixField} -v c3=${obsField} -F, 'NR!=1&&$c3!="-999"{print $c1,$c2,$c3}' ${tstData} | sort > phen.tst.list
+join phen.tst.list ${trName}.ebv.s > ${trName}.comp${outTag}
+join s.2 ${trName}.comp${outTag} > ${trName}.comp${outTag}_gt
+join noGtId ${trName}.comp${outTag} > ${trName}.comp${outTag}_nogt
+
+

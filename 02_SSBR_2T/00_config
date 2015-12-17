@@ -1,0 +1,55 @@
+#
+#hybrid model for 2 trait
+#
+# This is 1-MAF.  Remove any loci that has a MAF <1-FILTER
+FILTER=.9
+#
+# For Bayes C
+PI=.95
+
+##variance components(added by Hao)
+#VARE11=148.7
+#VARE12=157.9
+#VARE21=157.9
+#VARE22=228.4
+#
+#VARG11=73.6
+#VARG12=85.1
+#VARG21=85.1
+#VARG22=127.2
+
+# 18k_individuals SNP data set
+# SUM2PQ=15660.5
+
+# 70k_individuals SNP data set
+# cat /work/hao/4.Data70k/pq      
+# 0.183726
+# cat /work/hao/4.Data70k/sum2pq 
+# 15226.8
+
+SUM2PQ=15226.8
+
+# If you have multiple devices you can set which to use here or 
+# comment this out to use system default
+export CUDA_VISIBLE_DEVICES=1,2
+
+# Set this to where you installed this example
+WORK=/work/JH/SSBR_2t
+SCRIPT=/home/joonholee/03_Analysis/01_SSBR_2tr/bw_wtg_70k
+# Shouldn't need to touch these
+RUN=${WORK}/result_bw_wtg_70k
+DATA=/work/hao/4.Data70k
+PERF=${DATA}/pheno.train
+PED=${DATA}/stacked_ped
+
+SNPDATA=${DATA}/geno.file
+#SNPDATA=${DATA}/geno.female.trn.rm
+#SNPDATA=${DATA}/geno.female.trn.all.tst.rm
+
+
+##get inverse variance components
+VCdir=/work/JH/SSBR_2t/2.Data/var_bw_wtg_70k
+Ginv11=`awk 'NR==2{print $1}' ${VCdir}/genvar.inv` 
+Ginv12=`awk 'NR==2{print $2}' ${VCdir}/genvar.inv` 
+Ginv21=`awk 'NR==2{print $2}' ${VCdir}/genvar.inv` 
+Ginv22=`awk 'NR==3{print $2}' ${VCdir}/genvar.inv` 

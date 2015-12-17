@@ -1,0 +1,12 @@
+# Do the M'M blocks for 2 traits y1 and y2
+
+. ./00_config
+
+cd ${RUN}
+
+# The BW block
+# Take a look at the mkphi tool.  Run: mkphi -g genvar -p .95 -k 7753 -q .25
+# in the scripts.1 directory.  The -k 7753 came from the 02_prep script and
+# is the number of loci actually used after filtering for MAF.
+#PHI=13.652
+mtmgpu -d 1 -m M.t -o W1tW1.phi11 -z Z1RZ1 -p ${LAMBDA3}

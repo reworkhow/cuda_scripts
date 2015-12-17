@@ -1,0 +1,43 @@
+#
+# Example 1dir - hybrid model for 1 direct effect
+#
+
+# This is 1-MAF.  Remove any loci that has a MAF <1-FILTER
+FILTER=.9
+
+
+# For Bayes C
+PI=.95
+
+
+#variance components(added by Hao)
+VARE=144.75
+VARG=78.22
+
+W1=0.9 #proportion of genetic variance explained by markers
+W2=$(echo 1.0-$W1|bc -l) #
+
+SUM2PQ=1511.38
+
+#lamda and phi are calculated without residual variance.
+VARA=$(echo $VARG*$W1/$SUM2PQ/'('1-$PI')'|bc -l)
+
+LAMBDA1=$(echo 1/'('$VARG*$W2')'| bc -l) #for extra polygenic part
+LAMBDA2=$(echo 1/'('$VARG*$W1')'| bc -l) #for epsilon
+LAMBDA3=$(echo 1/$VARA|bc -l) 		 #for markers
+
+
+# If you have multiple devices you can set which to use here or 
+# comment this out to use system default
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+
+# Set this to where you installed this example
+WORK=/work/JH/SSBR_St/08_result_BW_poly_w9_70k
+DATA=/work/hao/5.sparse_marker
+
+# Shouldn't need to touch these
+RUN=${WORK}
+SCRIPTS=/home/joonholee/03_Analysis/02_SSBR_Str/scripts_BW_poly_w9_70k
+PERF=${DATA}/pheno.train
+PED=${DATA}/stacked_ped
+SNPDATA=${DATA}/geno.file

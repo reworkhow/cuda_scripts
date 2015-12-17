@@ -1,0 +1,64 @@
+#Make the X and Z incidence matrices including the J and K equations
+
+. ./00_config
+
+cd ${RUN}
+
+# Make the J equation of Fernando et al. (2014)
+awk -v N=`wc s.2 | awk '{print $1}'` 'BEGIN{print "SPARSE ", N, 1, N; for( i=1; i<=N; i++ ) print i, 1, -1}'  >J_2
+
+cmult -a v.1_2 -b J_2 -r -1 -c A12J2
+
+pcgmgpu -A v.1_1 -b A12J2 -x J_1 -t 1.e-8
+
+cvcat J_1 J_2 J
+
+# Make the incidence matrices
+awk '{print $1}' ${PERF} >id.dat
+awk '{print $2}' ${PERF} >bcg.dat
+#awk '{print $4}' ${PERF} >pcg.dat
+awk '{print $3}' ${PERF} >y1
+#awk '{print $6}' ${PERF} >y2
+
+awk '{print $1}' perm >id.eff
+awk '$1!="."{print $1}' bcg.dat | sort -u >bcg.eff
+#awk '$1!="."{print $1}' pcg.dat | sort -u >pcg.eff
+
+cgen_z -d id.dat -r y1 -e id.eff -o Z1
+#cgen_z -d id.dat -r y2 -e id.eff -o Z2
+
+cgen_z -d bcg.dat -r y1 -e bcg.eff -o X1noj
+#cgen_z -d pcg.dat -r y2 -e pcg.eff -o X2noj
+
+cmult -a Z1  -b J -c Z1J
+#cmult -a Z2  -b J -c Z2J
+
+# Rohan's K equation for E[alpha] != 0
+
+# Step (1)
+# Strip off IDs and convert to an sbr matrix
+awk '{print substr($0, length($1)+1)}' c.1.fmt >snps.2
+conv2sbr -i snps.2 -o M_2 -C centerValues
+
+#N2=`head -1 v.1_2 | awk '{print $3}'`
+#
+#tail -${N2} id.eff >id.2
+#
+#awk -v N=${N2} 'BEGIN{print "SPARSE", N, 1, N}'  >K_2
+#
+#mprint -p M_2 | awk '{sum=0; for(i=1; i<=NF; i++) sum+=$i; print NR, 1, sum}'  >>K_2
+#
+#cmult -a v.1_2 -b K_2 -r -1 -c A12K2
+#
+#pcgmgpu -A v.1_1 -b A12K2 -x K_1 -t 1.e-8
+#
+#cvcat K_1 K_2 K
+#
+#cmult -a Z1 -b K -c Z1K
+#cmult -a Z2 -b K -c Z2K
+#
+#chcat Z1J Z1K X1noj X1
+#chcat Z2J Z2K X2noj X2
+chcat Z1J X1noj X1
+#chcat Z2J X2noj X2
+

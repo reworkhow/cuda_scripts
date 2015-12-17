@@ -1,0 +1,57 @@
+# Make the LHS blocks used by hmgibbsC
+
+ . ./00_config
+
+cd ${RUN}
+# Make in inverse residual matrix
+cnewr -R R -r ${DATA}/resid y1
+
+# Number of animals in the analysis
+NANIM=`head -1 Z1 | awk '{print $3}'`
+
+# Number of animals with genotypes
+NGENO=`wc s.2 | awk '{print $1}'`
+
+# Number of observations
+NOBS=`wc y1 | awk '{print $1}'`
+
+# Number of animals with imputed genotypes
+NIMPUTED=`expr ${NANIM} - ${NGENO}`
+
+echo "Number animals: " ${NANIM} " Number genotyped( in Pedigree): " ${NGENO} " Number  imputed: " ${NIMPUTED}
+#() added by Hao
+
+
+# Starting location in N and columns of Z if the genotyped animals
+STARTZo=`expr ${NIMPUTED} + 1`
+
+# Number of levels of the fixed effects
+NBETA1=`head -1 X1 | awk '{print $3}'`
+
+# Look at mthmMap to see where these blocks are used
+# Fixed effect on y1
+cmult -t -a X1 -b X1 -R R11 -c X1RX1
+cmult -t -a X1 -b Z1 -R R11 -c X1RZ1
+cmult -t -a Z1 -b X1 -R R11 -c Z1RX1
+csubm -i X1RZ1 -o Xn1RZn1 -p 1:1:${NBETA1}:${NIMPUTED}
+
+# Alpha effect on y1
+csubm -i X1RZ1 -o Xo1RZo1 -p 1:${STARTZo}:${NBETA1}:${NANIM}
+ident ${NBETA1} >I1
+cmult -t -a Xo1RZo1 -b I1 -c Zo1RXo1
+
+cmult -t -a Z1 -R R11 -b Z1 -c Z1RZ1
+csubm -i Z1RZ1 -o Zn1RZn1 -p 1:1:${NIMPUTED}:${NIMPUTED}
+csubm -i Z1RZ1 -o Zn1RZ1  -p 1:1:${NIMPUTED}:${NANIM}
+csubm -i Z1RZ1 -o Z1RZn1  -p 1:1:${NANIM}:${NIMPUTED}
+csubm -i Z1RZ1 -o ZoRZ1  -p ${STARTZo}:1:${NANIM}:${NANIM}
+
+#polygenic part
+cadd -a Z1RZ1 -b v.perm -r $LAMBDA1 -c Z1RZ1.AXg11c
+
+# Epsilon effect on y1
+cadd -a Zn1RZn1 -r $LAMBDA2 -b v.1_1 -c Zn1RZn1.AnnXg11
+
+# Making a transpose
+ident ${NBETA1} >I1
+cmult -t -a Xn1RZn1 -b I1 -c Zn1RXn1

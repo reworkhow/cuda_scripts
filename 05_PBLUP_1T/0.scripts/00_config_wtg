@@ -1,0 +1,13 @@
+#!/bin/bash 
+
+TRNAME=WTG
+SCRIPT=~/03_Analysis/03_PBLUP/0.scripts
+DATA=~/03_Analysis/03_PBLUP/2.data
+RUN=~/03_Analysis/03_PBLUP/5.results_wtg_st
+FILE=${DATA}/pheno.train
+PED=${DATA}/stacked_ped
+###vare/varg
+VARE=127.26
+VARG=39.25
+lambda=$(echo $VARE/$VARG|bc -l)
+ 

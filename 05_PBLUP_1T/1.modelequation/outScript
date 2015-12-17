@@ -1,0 +1,148 @@
+#!/bin/bash
+set -eu
+# The 2 traits are BW WTG building their Rinverse blocks
+cnewr -n -R Rinv -r R0 BW WTG
+# Processing element t(X1).RinvBW_BW.X1
+cmult -t -a X1 -R RinvBW_BW -b X1 -c "t(X1).RinvBW_BW.X1" &
+# Processing element t(X1).RinvBW_WTG.X2
+cmult -t -a X1 -R RinvBW_WTG -b X2 -c "t(X1).RinvBW_WTG.X2" &
+# Processing element t(X1).RinvBW_BW.Z1
+cmult -t -a X1 -R RinvBW_BW -b Z1 -c "t(X1).RinvBW_BW.Z1" &
+# Processing element t(X1).RinvBW_WTG.Z2
+cmult -t -a X1 -R RinvBW_WTG -b Z2 -c "t(X1).RinvBW_WTG.Z2" &
+# Processing element t(X2).RinvBW_WTG.X1
+cmult -t -a X2 -R RinvBW_WTG -b X1 -c "t(X2).RinvBW_WTG.X1" &
+# Processing element t(X2).RinvWTG_WTG.X2
+cmult -t -a X2 -R RinvWTG_WTG -b X2 -c "t(X2).RinvWTG_WTG.X2" &
+# Processing element t(X2).RinvBW_WTG.Z1
+cmult -t -a X2 -R RinvBW_WTG -b Z1 -c "t(X2).RinvBW_WTG.Z1" &
+# Processing element t(X2).RinvWTG_WTG.Z2
+cmult -t -a X2 -R RinvWTG_WTG -b Z2 -c "t(X2).RinvWTG_WTG.Z2" &
+wait
+# Processing element t(Z1).RinvBW_BW.X1
+cmult -t -a Z1 -R RinvBW_BW -b X1 -c "t(Z1).RinvBW_BW.X1" &
+# Processing element t(Z1).RinvBW_WTG.X2
+cmult -t -a Z1 -R RinvBW_WTG -b X2 -c "t(Z1).RinvBW_WTG.X2" &
+# Processing element t(Z1).RinvBW_BW.Z1
+cmult -t -a Z1 -R RinvBW_BW -b Z1 -c "t(Z1).RinvBW_BW.Z1" &
+# Processing element t(Z1).RinvBW_WTG.Z2
+cmult -t -a Z1 -R RinvBW_WTG -b Z2 -c "t(Z1).RinvBW_WTG.Z2" &
+# Processing element t(Z2).RinvBW_WTG.X1
+cmult -t -a Z2 -R RinvBW_WTG -b X1 -c "t(Z2).RinvBW_WTG.X1" &
+# Processing element t(Z2).RinvWTG_WTG.X2
+cmult -t -a Z2 -R RinvWTG_WTG -b X2 -c "t(Z2).RinvWTG_WTG.X2" &
+# Processing element t(Z2).RinvBW_WTG.Z1
+cmult -t -a Z2 -R RinvBW_WTG -b Z1 -c "t(Z2).RinvBW_WTG.Z1" &
+# Processing element t(Z2).RinvWTG_WTG.Z2
+cmult -t -a Z2 -R RinvWTG_WTG -b Z2 -c "t(Z2).RinvWTG_WTG.Z2" &
+wait
+# Processing element t(X1).RinvBW_BW.BW
+cmult -t -a X1 -R RinvBW_BW -b BW -c "t(X1).RinvBW_BW.BW" &
+# Processing element t(X1).RinvBW_WTG.WTG
+cmult -t -a X1 -R RinvBW_WTG -b WTG -c "t(X1).RinvBW_WTG.WTG" &
+wait
+caddm "t(X1).RinvBW_BW.BW" "t(X1).RinvBW_WTG.WTG" "t(X1).BW" &
+# Processing element t(X2).RinvBW_WTG.BW
+cmult -t -a X2 -R RinvBW_WTG -b BW -c "t(X2).RinvBW_WTG.BW" &
+# Processing element t(X2).RinvWTG_WTG.WTG
+cmult -t -a X2 -R RinvWTG_WTG -b WTG -c "t(X2).RinvWTG_WTG.WTG" &
+wait
+caddm "t(X2).RinvBW_WTG.BW" "t(X2).RinvWTG_WTG.WTG" "t(X2).WTG" &
+# Processing element t(Z1).RinvBW_BW.BW
+cmult -t -a Z1 -R RinvBW_BW -b BW -c "t(Z1).RinvBW_BW.BW" &
+# Processing element t(Z1).RinvBW_WTG.WTG
+cmult -t -a Z1 -R RinvBW_WTG -b WTG -c "t(Z1).RinvBW_WTG.WTG" &
+wait
+caddm "t(Z1).RinvBW_BW.BW" "t(Z1).RinvBW_WTG.WTG" "t(Z1).BW" &
+# Processing element t(Z2).RinvBW_WTG.BW
+cmult -t -a Z2 -R RinvBW_WTG -b BW -c "t(Z2).RinvBW_WTG.BW" &
+# Processing element t(Z2).RinvWTG_WTG.WTG
+cmult -t -a Z2 -R RinvWTG_WTG -b WTG -c "t(Z2).RinvWTG_WTG.WTG" &
+wait
+caddm "t(Z2).RinvBW_WTG.BW" "t(Z2).RinvWTG_WTG.WTG" "t(Z2).WTG" &
+wait
+# Creating the script to try and form the required diagonal matrices
+sp2diag -i "t(Z1).RinvBW_BW.Z1" -o "t(Z1).RinvBW_BW.Z1.d" &
+sp2diag -i "t(Z1).RinvBW_WTG.Z2" -o "t(Z1).RinvBW_WTG.Z2.d" &
+sp2diag -i "t(Z2).RinvBW_WTG.Z1" -o "t(Z2).RinvBW_WTG.Z1.d" &
+sp2diag -i "t(Z2).RinvWTG_WTG.Z2" -o "t(Z2).RinvWTG_WTG.Z2.d" &
+wait
+# The code below can only be run after the creation scripts have completed
+
+
+declare -a array=( )                      # we build a 1-D-array
+numCPU=8
+numOps=0
+MMEmap="MME-like.map"
+
+function countPlus () {
+   echo $1 | awk -F+ '{print NF}' 
+}
+function breakPlus () {
+   echo $1 | awk -F+ '{for (i=1; i<=NF; i+=1) {print $i}}'
+}
+
+echo "MAP"  > lhsPCG.map
+echo "MAP"  > lhsGibbs.map
+
+echo "# Creating the script to resolve the off-diagonal constructs that have a diagonal component"
+rowIndex=0
+while read -a line ; do
+    pcgLine=(${line[@]})
+    gibbsLine=(${line[@]})
+    #((rowIndex++))
+    let rowIndex=$rowIndex+1
+    colIndex=1
+    for (( COUNTER=0; COUNTER<${#line[@]}; COUNTER++ )); do
+        numElements=`countPlus ${line[$COUNTER]}`
+        if [ ${numElements} -gt 1 ]; then
+          #echo "Need to fix ${line[$COUNTER]}"
+          elements=(`breakPlus ${line[$COUNTER]}`)
+          #echo ${elements}
+          varcovConstruct=${elements[1]}
+          vcvMatrix=`echo ${varcovConstruct} | awk -F* '{print $1}'`
+          vcvMultiplier=`echo ${varcovConstruct} | awk -F* '{print $2}'`
+          #echo "Matrix is ${vcvMatrix} and multiplier is ${vcvMultiplier}"
+          echo "# Testing for presence of ${elements[0]}.d"
+          if [ -e ${elements[0]}".d"  ] ; then
+                  pcgLine[$COUNTER]=${elements[0]}".d+"${elements[1]}
+                  gibbsLine[$COUNTER]=${elements[0]}".d+"${elements[1]}
+                  if [ $rowIndex == $colIndex ]; then
+                       cadd -a ${elements[0]} -b ${vcvMatrix} -r ${vcvMultiplier} -c ${elements[0]}.v &
+                       gibbsLine[$COUNTER]=${elements[0]}.v    # No diagonal block constructs on Gibbs
+                       #((numOps++))
+                       let numOps=$numOps+1  
+                  fi
+          else
+                  # Need to do the addition
+                  cadd -a ${elements[0]} -b ${vcvMatrix} -r ${vcvMultiplier} -c ${elements[0]}.v &
+                  pcgLine[$COUNTER]=${elements[0]}.v
+                  gibbsLine[$COUNTER]=${elements[0]}.v
+                  #((numOps++))
+                  let numOps=$numOps+1       
+          fi
+          #((numOps++))
+          if [ ${numOps} -ge ${numCPU} ]; then
+              wait  
+              numOps=0
+          fi
+          #echo $colIndex $rowIndex $COUNTER
+          #line[$COUNTER]="LHS_${rowIndex}_${colIndex}"
+        fi
+    	#((colIndex++))
+        let colIndex=$colIndex+1
+    done
+    #echo ${line[@]} >> WLS.map
+    echo ${pcgLine[@]}   >> lhsPCG.map
+    echo ${gibbsLine[@]} >> lhsGibbs.map
+done < "${MMEmap}"
+
+if [ ${numOps} -gt 0 ]; then
+    wait 
+fi
+
+export CUDA_VISIBLE_DEVICES=0
+echo Processing Completed - now run the solvers
+echo pcgbig         -A lhsPCG.map   -b rhs.map        -n 1000  -o PCG 
+echo Then create soln.map as starting values for Gibbs sampling
+echo ssgibbsCudaBr3 -A lhsGibbs.map -b rhs.map -s 1.0 -n 10000 -o gibbs -x soln.map

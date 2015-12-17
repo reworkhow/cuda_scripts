@@ -1,0 +1,8 @@
+
+time ./01_prep
+time ./02_prep
+time ./03_prep
+time ./04_prep
+time ./05_prep
+time ./06_prep
+time ./07_run

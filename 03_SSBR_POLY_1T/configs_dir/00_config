@@ -1,0 +1,46 @@
+#
+# Example 1dir - hybrid model for 1 direct effect
+#
+
+# This is 1-MAF.  Remove any loci that has a MAF <1-FILTER
+FILTER=.9
+
+# Average pq for var(alpha) calculation
+PQ=.25
+
+# For Bayes C
+PI=.95
+
+
+#variance components(added by Hao)
+VARE=148.7
+VARG=73.6
+
+W1=1.0 #proportion of genetic variance explained by markers
+W2=$(echo 1.0-$W1|bc -l) #
+
+SUM2PQ=15660.5
+
+#lamda and phi are calculated without residual variance.
+VARA=$(echo $VARG*$W1/$SUM2PQ/'('1-$PI')'|bc -l)
+
+LAMBDA1=$(echo 1/'('$VARG*$W2')'| bc -l) #for extra polygenic part
+LAMBDA2=$(echo 1/'('$VARG*$W1')'| bc -l) #for epsilon
+LAMBDA3=$(echo 1/$VARA|bc -l) 		 #for markers
+
+
+# If you have multiple devices you can set which to use here or 
+# comment this out to use system default
+export CUDA_VISIBLE_DEVICES=1
+
+# Set this to where you installed this example
+WORK=/home/haocheng/0_shell_scripts/bruce_example/extrapoly.1dir
+# Shouldn't need to touch these
+DATA=/home/haocheng/ssBayes/aviagenData
+RUN=${WORK}/run.geno.fm.trn.rm
+SCRIPTS=${WORK}/scripts.1
+PERF=${DATA}/pheno.file
+PED=${DATA}/stacked_ped
+
+#SNPDATA=${DATA}/geno.file
+SNPDATA=${DATA}/geno.female.trn.rm

@@ -1,0 +1,44 @@
+# Make the rhs 
+# ASA BW WW MTHM
+
+. ./00_config
+
+cd ${RUN}
+
+cmult -t -a X1 -R R11 -b y1 -c X1Ry1
+cmult -t -a X1 -R R12 -b y2 -c X1Ry2
+cadd -a X1Ry1 -b X1Ry2 -c X1Ry
+
+cmult -t -a X2 -R R12 -b y1 -c X2Ry1
+cmult -t -a X2 -R R22 -b y2 -c X2Ry2
+cadd -a X2Ry1 -b X2Ry2 -c X2Ry
+
+# the alpha rhs
+cmult -t -a Z1 -R R11 -b y1 -c Z1Ry1
+cmult -t -a Z1 -R R12 -b y2 -c Z1Ry2
+cadd -a Z1Ry1 -b Z1Ry2 -c Z1Ry
+mmultongpu -m M.t -y Z1Ry -o W1Ry -V
+
+cmult -t -a Z2 -R R12 -b y1 -c Z2Ry1
+cmult -t -a Z2 -R R22 -b y2 -c Z2Ry2
+cadd -a Z2Ry1 -b Z2Ry2 -c Z2Ry
+mmultongpu -m M.t -y Z2Ry -o W2Ry -V
+
+# The epsilon rhs
+NANIM=`head -1 Z1 | awk '{print $3}'`
+NGENO=`wc s.2 | awk '{print $1}'`
+NOBS=`wc y1 | awk '{print $1}'`
+NIMPUTED=`expr ${NANIM} - ${NGENO}`
+echo "Number animals: " ${NANIM} " Number genotyped: " ${NGENO} " Number  imputed: " ${NIMPUTED}
+
+csubm -i Z1 -o Zn1 -p 1:1:${NOBS}:${NIMPUTED}
+csubm -i Z2 -o Zn2 -p 1:1:${NOBS}:${NIMPUTED}
+
+cmult -t -a Zn1 -R R11 -b y1 -c Zn1Ry1
+cmult -t -a Zn1 -R R12 -b y2 -c Zn1Ry2
+cadd -a Zn1Ry1 -b Zn1Ry2 -c Zn1Ry
+
+cmult -t -a Zn2 -R R12 -b y1 -c Zn2Ry1
+cmult -t -a Zn2 -R R22 -b y2 -c Zn2Ry2
+cadd -a Zn2Ry1 -b Zn2Ry2 -c Zn2Ry
+

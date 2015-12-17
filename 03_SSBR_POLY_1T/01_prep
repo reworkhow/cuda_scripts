@@ -1,0 +1,35 @@
+# Make the pedigree file and the inv(nrm) blocks
+
+source ./00_config
+
+cd ${RUN}
+
+# Put the pedigree file in ascending generation order
+stack_ped ${PED} p.2.s
+
+# Make the inverse(A)
+invnrm -v v -i p.2.s -o f
+
+# Permute to with and without markers.  1=imputed 2 = genotyped
+awk '{print $1}' ${SNPDATA} | sort  >cid.id
+awk '{print $1}' ${PED} | sort | join - cid.id >s.2 #just join function to get genotyped animals in pedigree
+						    #this example may have genotyped animals without pedigree information 
+
+sort ${PED} > ped.sorted
+join -a1 -e "." -o 1.1 2.1 ped.sorted s.2 |  awk '$2=="." {print $1, 1}' >cid.1 ##2.1 means display the first field from the second file
+									    ##PED->file.1  s.2->file.2
+									    ##keep all in file 1 and join
+									    ##-e  : replace missing with .
+
+									    ##Is he just trying to find the different???
+									    ##tested same to
+									    ##join -v1 ped.id s.2 | then add 1
+									    ##find non-genotyped animals in pedigree
+									    ##cid.1 has IDs for all non-genotyped animals in pedigree										 ##with a extra column of 1s 				
+awk '{print $1}' p.2.s >id.s
+
+permsub -i id.s -r cid.1 -A v -p perm -d 2 ##in perm, the permuted value in A matrix is the correct row number-1
+
+chcat v.1_1 v.1_2 v12
+chcat v.2_1 v.2_2 v21
+cvcat v12 v21 v.perm #I used a permutetion matrix to construction v.perm

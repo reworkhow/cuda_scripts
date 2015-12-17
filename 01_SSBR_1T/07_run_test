@@ -1,0 +1,23 @@
+
+. ./00_config
+
+SAMPLES=20000
+BURNIN=1000
+
+cd ${RUN}
+
+cln
+#shmgr load W1tW1.phi11 W2tW2.phi22 W1tW2.phi12
+#shmgr loadcmo M_2
+
+# Do the burnin
+SEED=7894
+
+start=`date +%s`
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+hmgibbsCfast -A ${SCRIPT}/mthmMap -o out -s ${SEED} -n ${SAMPLES} -p ${PI} -V -d 4 -P test
+#hmgibbsC -A ${SCRIPT}/mthmMap -o out -s ${SEED} -n ${SAMPLES} -p ${PI} -V -d 1 -x restart.restart
+end=`date +%s`
+runtime=$((end-start))
+echo ${runtime} > ${RUN}/time_1_sampling.out
+

@@ -1,0 +1,28 @@
+# Make the rhs 
+# ASA BW WW MTHM
+
+. ./00_config
+
+cd ${RUN}
+
+# Fixed effects RHS
+cmult -t -a X1 -R R11 -b y1 -c X1Ry1
+
+# the alpha rhs
+cmult -t -a Z1 -R R11 -b y1 -c Z1Ry1
+
+mmultongpu -m M.t -y Z1Ry1 -o W1Ry1 -V
+
+# The epsilon rhs
+# See 05_prep for explainations of these variables
+NANIM=`head -1 Z1 | awk '{print $3}'`
+NGENO=`wc s.2 | awk '{print $1}'`
+NOBS=`wc y1 | awk '{print $1}'`
+NIMPUTED=`expr ${NANIM} - ${NGENO}`
+echo "Number animals: " ${NANIM} " Number genotyped: " ${NGENO} " Number  imputed: " ${NIMPUTED}
+
+# The epsilon RHS block
+csubm -i Z1 -o Zn1 -p 1:1:${NOBS}:${NIMPUTED}
+
+cmult -t -a Zn1 -R R11 -b y1 -c Zn1Ry1
+
