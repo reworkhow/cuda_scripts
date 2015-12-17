@@ -1,0 +1,20 @@
+HMMAP
+RHS
+{
+	BW 	CGBW 		beta 			XRy
+	BW 	MARKER_BW 	alpha(0.1027399) 	WRy
+}
+BLOCKS
+{
+	XRX 	XRZ
+	ZRX	WtW.phi
+}
+COMMON
+{
+	Mo=M_2
+	Fnn=NULL
+	Tnn=NULL
+	permute=NULL
+	Ano=NULL
+	Aon=NULL
+}

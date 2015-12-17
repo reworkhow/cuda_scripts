@@ -1,0 +1,38 @@
+# Make the LHS blocks used by hmgibbsC
+
+ . ./00_config
+
+cd ${RUN}
+# Make in inverse residual matrix
+cnewr -R R -r ${SCRIPTS}/resid y
+
+# Number of animals in the analysis
+NANIM=`head -1 Z | awk '{print $3}'`
+
+# Number of animals with genotypes
+NGENO=`wc s.2 | awk '{print $1}'`
+
+# Number of observations
+NOBS=`wc y | awk '{print $1}'`
+
+# Number of animals with imputed genotypes
+NIMPUTED=`expr ${NANIM} - ${NGENO}`
+
+echo "Number animals: " ${NANIM} " Number genotyped( in Pedigree): " ${NGENO} " Number  imputed: " ${NIMPUTED}
+#() added by Hao
+
+
+# Starting location in N and columns of Z if the genotyped animals
+STARTZo=`expr ${NIMPUTED} + 1`
+
+# Number of levels of the fixed effects
+NBETA1=`head -1 X | awk '{print $3}'`
+
+# Look at mthmMap to see where these blocks are used
+# Fixed effect on y1
+cmult -t -a X -b X -R R11 -c XRX
+cmult -t -a X -b Z -R R11 -c XRZ
+cmult -t -a Z -b X -R R11 -c ZRX
+
+# Alpha effect on y1
+cmult -t -a Z -R R11 -b Z -c ZRZ

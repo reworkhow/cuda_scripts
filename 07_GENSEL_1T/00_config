@@ -1,0 +1,40 @@
+#
+# Example 1dir - hybrid model for 1 direct effect
+#
+
+# This is 1-MAF.  Remove any loci that has a MAF <1-FILTER
+FILTER=1.0
+
+
+# For Bayes C
+PI=0.95
+
+
+#variance components(added by Hao)
+VARE=144.75
+VARG=78.22
+
+
+SUM2PQ=15226.8
+
+#lamda and phi are calculated without residual variance.
+VARA=$(echo $VARG/$SUM2PQ/'('1-$PI')'|bc -l)
+
+LAMBDA2=$(echo 1/'('$VARG')'| bc -l) #for epsilon
+LAMBDA1=$(echo 1/$VARA|bc -l) 		 #for markers
+
+
+# If you have multiple devices you can set which to use here or 
+# comment this out to use system default
+export CUDA_VISIBLE_DEVICES=0,1
+
+# Set this to where you installed this example
+WORK=/home/joonholee/2_Analysis/GenSel_st
+DATA=/home/joonholee/2_Analysis/4.Data70k/forGenSel_like
+
+# Shouldn't need to touch these
+RUN=${WORK}/01_result_GenSel_bw_70k
+SCRIPTS=${WORK}/01_GenSel_bw_70k
+PERF=${DATA}/pheno.geno.train.bw
+PED=${DATA}/stacked_ped
+SNPDATA=${DATA}/geno.pheno.train.bw

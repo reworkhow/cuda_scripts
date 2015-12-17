@@ -1,0 +1,19 @@
+
+. ./00_config
+
+BURNIN=5000
+SAMPLES=55000
+
+cd ${RUN}
+
+cln
+#shmgr load W1tW1.phi11
+#shmgr loadcmo M_2
+
+# Do the burnin
+SEED=9876
+
+#export CUDA_VISIBLE_DEVICES=0
+
+#hmgibbsCfast -A ${SCRIPTS}/mthmMap -o out -s ${SEED} -n ${SAMPLES} -B ${BURNIN} -p ${PI} -V -d 1 -c chain.new
+hmgibbsCfast -A ${RUN}/mthmMap -o out -s ${SEED} -n ${SAMPLES} -B ${BURNIN} -p ${PI} -V -d 1

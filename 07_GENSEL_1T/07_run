@@ -1,0 +1,17 @@
+
+. ./00_config
+
+# Burn in the sampler
+BURNIN=2000
+
+# Total of 12k samples but only 10k are used after the BURNIN
+SAMPLES=42000
+
+cd ${RUN}
+
+
+SEED=9876
+
+export CUDA_VISIBLE_DEVICES=0,1
+
+hmgibbsCfast -A ${SCRIPTS}/mthmMap_GS -o out -s ${SEED} -n ${SAMPLES} -B ${BURNIN} -p ${PI} -V -d 2

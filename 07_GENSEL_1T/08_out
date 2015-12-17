@@ -1,0 +1,28 @@
+
+. ./00_config
+
+# Name of trait
+trName=BW
+idField=1
+fixField=5
+obsField=8
+outTag=_GenSel_like
+tstData=/home/joonholee/2_Analysis/4.Data70k
+
+cd ${RUN}
+awk '{print $1}' out.9876.MARKER_BW.39999 > MK.eff
+cmult -a ${tstData}/forGenSel_like/geno.pheno.test.bw.noid -b MK.eff -c cmult_gebv
+
+awk 'NR!=1{print $1}' cmult_gebv > gebv 
+# Making Sorted_ID_GEBV file 
+#awk '{print $1}' ${trName}.direct > gebv
+paste ${tstData}/forGenSel_like/id.geno.pheno.test.bw gebv | sort > ${trName}.gebv
+rm gebv
+awk -v c1=${idField} -v c2=${fixField} -v c3=${obsField} -F, 'NR!=1&&$c3!="-999"{print $c1,$c2,$c3}' ${tstData} | sort > phen.tst.list
+join phen.tst.list ${trName}.gebv > BW.comp${outTag}_gt
+
+#join s.2 BW.comp${outTag} > BW.comp${outTag}_gt
+#awk '{print $1}' cid.1 > noGtId
+#join noGtId BW.comp${outTag} > BW.comp${outTag}_nogt
+
+

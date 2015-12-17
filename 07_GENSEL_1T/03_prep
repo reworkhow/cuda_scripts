@@ -1,0 +1,25 @@
+#Make the X and Z incidence matrices including the J and K equations
+
+. ./00_config
+
+cd ${RUN}
+
+# Make the incidence matrices
+# cat /work/hao/4.Data70k/pheno.header 
+# _id hwumgs bwt.phen br.phen lfi.phen afi.phen wtg.phen hhp.phen hd.phen afe.phen
+
+awk '{print $1}' ${PERF} >id.dat
+awk '{print $2}' ${PERF} >bcg.dat
+awk '{print $3}' ${PERF} >y
+
+awk '$1!="."{print $1}' id.dat | sort -u >id.eff
+awk '$1!="."{print $1}' bcg.dat | sort -u >bcg.eff
+
+cgen_z -d id.dat -r y -e id.eff -o Z
+
+cgen_z -d bcg.dat -r y -e bcg.eff -o X
+
+# Step (1)
+# Strip off IDs and convert to an sbr matrix
+awk '{print substr($0, length($1)+1)}' c.1.fmt >snps.2
+conv2sbr -i snps.2 -o M_2 -C centerValues

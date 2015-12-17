@@ -1,0 +1,19 @@
+# Do the imputation
+
+. ./00_config
+
+cd ${RUN}
+
+#get the genotypes on all animals in v.2_2
+#awk '{print $1}' s.2 | join ${SNPDATA} - >c.1.0
+
+# Filter out the low minor allele freq loci
+awk '{print substr($0,length($1)+1)}' ${SNPDATA} >c.1.1
+genofilter -i c.1.1 -o c.1.2 -f ${FILTER} -C centerValues
+awk '{print $1}' ${SNPDATA} | paste - c.1.2 > c.1
+
+# get the cid file into fixed length records
+awk '{printf "%-19s", $1; for(i=2; i<=NF; i++) printf "% 3d", $i; printf "\n"}' c.1 >c.1.fmt
+
+NACTLOCI=`head -1 c.1.fmt | awk '{print NF}'`
+echo "Actual number of loci used after filter: " ${NACTLOCI}
