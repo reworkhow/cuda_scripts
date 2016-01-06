@@ -1,0 +1,107 @@
+# Build the blocks for the LHS.
+# See the mthmMap file to see how these are used.
+ 
+. ./00_config
+
+#d=${WORK}/data/
+
+cd ${RUN}
+
+cnewr -R R -r ${VCdir}/resid y1 y2
+
+NANIM=`head -1 Z1 | awk '{print $3}'`
+NGENO=`wc s.2 | awk '{print $1}'`
+NOBS=`wc y1 | awk '{print $1}'`
+NIMPUTED=`expr ${NANIM} - ${NGENO}`
+echo "Number animals: " ${NANIM} " Number genotyped: " ${NGENO} " Number  imputed: " ${NIMPUTED}
+
+STARTZo=`expr ${NIMPUTED} + 1`
+NBETA1=`head -1 X1 | awk '{print $3}'`
+NBETA2=`head -1 X2 | awk '{print $3}'`
+
+# Fixed effect on y1
+cmult -t -a X1 -b X1 -R R11 -c X1RX1
+cmult -t -a X1 -b X2 -R R12 -c X1RX2
+cmult -t -a X1 -b Z1 -R R11 -c X1RZ1
+cmult -t -a X1 -b Z2 -R R12 -c X1RZ2
+cmult -t -a Z1 -b X1 -R R11 -c Z1RX1
+cmult -t -a Z2 -b X1 -R R12 -c Z2RX1
+
+csubm -i X1RZ1 -o Xn1RZn1 -p 1:1:${NBETA1}:${NIMPUTED}
+csubm -i X1RZ2 -o Xn1RZn2 -p 1:1:${NBETA1}:${NIMPUTED}
+
+# Fixed effect on y2
+cmult -t -a X2 -b X1 -R R12 -c X2RX1
+cmult -t -a X2 -b X2 -R R22 -c X2RX2
+cmult -t -a X2 -b Z1 -R R12 -c X2RZ1
+cmult -t -a X2 -b Z2 -R R22 -c X2RZ2
+cmult -t -a Z1 -b X2 -R R12 -c Z1RX2
+cmult -t -a Z2 -b X2 -R R22 -c Z2RX2
+
+csubm -i X2RZ1 -o Xn2RZn1 -p 1:1:${NBETA2}:${NIMPUTED}
+csubm -i X2RZ2 -o Xn2RZn2 -p 1:1:${NBETA2}:${NIMPUTED}
+
+# Alpha effect on y1
+csubm -i X1RZ1 -o Xo1RZo1 -p 1:${STARTZo}:${NBETA1}:${NANIM}
+csubm -i X2RZ1 -o Xo2RZo1 -p 1:${STARTZo}:${NBETA2}:${NANIM}
+ident ${NBETA1} >I1
+cmult -t -a Xo1RZo1 -b I1 -c Zo1RXo1
+ident ${NBETA2} >I2
+cmult -t -a Xo2RZo1 -b I2 -c Zo1RXo2
+# do the M'M blocks
+cmult -t -a Z1 -R R11 -b Z1 -c Z1RZ1
+cmult -t -a Z1 -R R12 -b Z2 -c Z1RZ2
+csubm -i Z1RZ1 -o Zn1RZn1 -p 1:1:${NIMPUTED}:${NIMPUTED}
+csubm -i Z1RZ2 -o Zn1RZn2 -p 1:1:${NIMPUTED}:${NIMPUTED}
+
+# Alpha effect on y2
+csubm -i X1RZ2 -o Xo1RZo2 -p 1:${STARTZo}:${NBETA1}:${NANIM}
+csubm -i X2RZ2 -o Xo2RZo2 -p 1:${STARTZo}:${NBETA2}:${NANIM}
+ident ${NBETA1} >I1
+cmult -t -a Xo1RZo2 -b I1 -c Zo2RXo1
+ident ${NBETA2} >I2
+cmult -t -a Xo2RZo2 -b I2 -c Zo2RXo2
+# do the M'M blocks
+cmult -t -a Z2 -R R12 -b Z1 -c Z2RZ1
+cmult -t -a Z2 -R R22 -b Z2 -c Z2RZ2
+csubm -i Z2RZ1 -o Zn2RZn1 -p 1:1:${NIMPUTED}:${NIMPUTED}
+csubm -i Z2RZ2 -o Zn2RZn2 -p 1:1:${NIMPUTED}:${NIMPUTED}
+
+# Epsilon effect on y1
+cadd -a Zn1RZn1 -r ${Ginv11} -b v.1_1 -c Zn1RZn1.AnnXg11 #get from genvar.inv
+cadd -a Zn1RZn2 -r ${Ginv12} -b v.1_1 -c Zn1RZn2.AnnXg12
+
+# Epsilon effect on y2
+cadd -a Zn2RZn1 -r ${Ginv21} -b v.1_1 -c Zn2RZn1.AnnXg21
+cadd -a Zn2RZn2 -r ${Ginv22} -b v.1_1 -c Zn2RZn2.AnnXg22
+
+ident ${NBETA1} >I1
+cmult -t -a Xn1RZn1 -b I1 -c Zn1RXn1
+cmult -t -a Xn1RZn2 -b I1 -c Zn2RXn1
+ident ${NBETA2} >I2
+cmult -t -a Xn2RZn1 -b I2 -c Zn1RXn2
+cmult -t -a Xn2RZn2 -b I2 -c Zn2RXn2
+
+
+#Extra Polygenic effects
+csubm -i Z1RZ1 -o Zo1RZ1  -p ${STARTZo}:1:${NANIM}:${NANIM}
+csubm -i Z1RZ2 -o Zo1RZ2 -p ${STARTZo}:1:${NANIM}:${NANIM}}
+csubm -i Z2RZ1 -o Zo2RZ1 -p ${STARTZo}:1:${NANIM}:${NANIM}}
+csubm -i Z2RZ2 -o Zo2RZ2  -p ${STARTZo}:1:${NANIM}:${NANIM}
+
+csubm -i Z1RZ1 -o Zn1RZ1  -p 1:1:${NIMPUTED}:${NANIM}
+csubm -i Z1RZ2 -o Zn1RZ2  -p 1:1:${NIMPUTED}:${NANIM}
+csubm -i Z2RZ1 -o Zn2RZ1  -p 1:1:${NIMPUTED}:${NANIM}
+csubm -i Z2RZ2 -o Zn2RZ2  -p 1:1:${NIMPUTED}:${NANIM}
+
+csubm -i Z1RZ1 -o Z1RZn1  -p 1:1:${NANIM}:${NIMPUTED}
+csubm -i Z1RZ2 -o Z1RZn2  -p 1:1:${NANIM}:${NIMPUTED}
+csubm -i Z2RZ1 -o Z2RZn1  -p 1:1:${NANIM}:${NIMPUTED}
+csubm -i Z2RZ2 -o Z2RZn2  -p 1:1:${NANIM}:${NIMPUTED}
+
+
+cadd -a Z1RZ1 -r ${PolyGinv11} -b v.perm -c Z1RZ1.AXg11c 
+cadd -a Z1RZ2 -r ${PolyGinv12} -b v.perm -c Z1RZ2.AXg12c
+cadd -a Z2RZ1 -r ${PolyGinv21} -b v.perm -c Z2RZ1.AXg21c
+cadd -a Z2RZ2 -r ${PolyGinv22} -b v.perm -c Z2RZ2.AXg22c
+
